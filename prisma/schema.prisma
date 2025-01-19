@@ -5,14 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 enum Roles {
   Admin
-  Instructor
-  Student
-}
-
-enum Difficulty {
-  medium
-  hard
-  easy
+  Moderator
+  User
 }
 
 generator client {
@@ -25,51 +19,83 @@ datasource db {
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
-  email    String   @unique
-  role     Roles    @default(Student)
+  id       Int       @id @default(autoincrement())
+  email    String    @unique
+  role     Roles     @default(User)
   password String
-  Course   Course[]
+  Thread   Thread[]
+  Post     Post[]
+  Comment  Comment[]
+  Like     Like[]
 
   @@map("users")
 }
 
-model Course {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String
-  price       Float
-  category    String
-  user_id     Int
-  user        User     @relation(fields: [user_id], references: [id])
-  createdAt   DateTime @default(now())
-  Lesson      Lesson[]
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Thread    Thread[]
 
-  @@map("courses")
+  @@map("categories")
 }
 
-model Lesson {
-  id        Int     @id @default(autoincrement())
-  title     String
-  videoUrl  String?
-  duration  Float
+model Thread {
+  id         Int      @id @default(autoincrement())
+  title      String
+  content    String
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  authorId   Int
+  author     User     @relation(fields: [authorId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  Post       Post[]
+  Like       Like[]
+
+  @@map("threads")
+}
+
+model Post {
+  id        Int       @id @default(autoincrement())
   content   String
-  course_id Int
-  course    Course  @relation(fields: [course_id], references: [id])
-  Quiz      Quiz[]
+  threadId  Int
+  authorId  Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  author    User      @relation(fields: [authorId], references: [id])
+  thread    Thread    @relation(fields: [threadId], references: [id])
+  Comment   Comment[]
+  Like      Like[]
 
-  @@map("lessons")
+  @@map("posts")
 }
 
-model Quiz {
-  id             Int        @id @default(autoincrement())
-  question       String
-  options        Json
-  correct_answer String
-  difficulty     Difficulty
-  category       String
-  lessonId       Int
-  lesson         Lesson     @relation(fields: [lessonId], references: [id])
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  authorId  Int
+  postId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  post      Post     @relation(fields: [postId], references: [id])
+  author    User     @relation(fields: [authorId], references: [id])
 
-  @@map("quizes")
+  @@map("comments")
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  authorId  Int
+  postId    Int?
+  threadId  Int?
+  createdAt DateTime @default(now())
+  author    User     @relation(fields: [authorId], references: [id])
+  thread    Thread?  @relation(fields: [threadId], references: [id])
+  post      Post?    @relation(fields: [postId], references: [id])
+
+  @@unique([authorId, postId])
+  @@unique([authorId, threadId])
+  @@map("likes")
 }

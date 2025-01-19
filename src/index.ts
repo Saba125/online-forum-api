@@ -7,8 +7,6 @@ import rateLimiter from "express-rate-limit"
 import cookieParser from "cookie-parser"
 import router from "./routes/routes"
 import path from "path"
-import authMiddleware from "./middlewares/auth"
-import adminMiddleware from "./middlewares/permission"
 // Load environment variables from .env file
 
 const app = express()
