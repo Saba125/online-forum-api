@@ -8,11 +8,11 @@ import { Roles } from "@prisma/client"
 import threadsController from "../controllers/threads/export"
 import commentController from "../controllers/comments/export"
 const Router = express.Router()
-// user routes
+// user
 Router.post("/auth/register", usersController.register)
 Router.post("/auth/login", usersController.login)
 // must add deleting and editing user
-// category routes
+// category
 Router.route("/category")
   .post(
     authMiddleware,
@@ -32,7 +32,7 @@ Router.route("/category/:id")
     roleMiddleware(Roles.Admin),
     categoryController.delete_category
   )
-// threads routes
+// threads
 Router.route("/threads")
   .post(authMiddleware, threadsController.add_thread)
   .get(authMiddleware, threadsController.get_threads)
@@ -40,7 +40,7 @@ Router.route("/threads/:id")
   .put(authMiddleware, threadsController.edit_thread)
   .delete(authMiddleware, threadsController.delete_thread)
   .get(authMiddleware, threadsController.get_single_thread)
-// posts routes
+// posts
 Router.route("/posts")
   .post(authMiddleware, postController.add_post)
   .get(authMiddleware, postController.get_posts)
@@ -48,11 +48,12 @@ Router.route("/posts/:id")
   .delete(authMiddleware, postController.delete_post)
   .put(authMiddleware, postController.edit_post)
 export default Router
-// comment controller
+// comment
 Router.route("/comments")
   .post(authMiddleware, commentController.add_coment)
   .get(authMiddleware, commentController.get_user_comments)
-Router.route("/comments/:id").put(
-  authMiddleware,
-  commentController.edit_comment
-)
+Router.route("/comments/:id")
+  .put(authMiddleware, commentController.edit_comment)
+  .delete(authMiddleware, commentController.delete_comment)
+  .get(authMiddleware, commentController.get_single_comment)
+// likes
